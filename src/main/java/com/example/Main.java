@@ -1,16 +1,18 @@
 package com.example;
 
-import java.util.Properties;
-
-import com.example.connections.KafkaConnection;
-import com.example.producer.ProducerDefault;
+import com.example.auth.TokenManager;
+import com.example.http.HttpRequests;
+import com.example.services.ApiFetchService;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class Main {
 
-    public static void main(String[] args) {
-        Properties kafkaProps = KafkaConnection.getProperties();
+    public static void main(String[] args) throws Exception {
+        HttpRequests app = new HttpRequests("http://localhost:5000");
+        TokenManager tokenManager = new TokenManager(app, "/token");
+        ApiFetchService fetchService = new ApiFetchService(app, tokenManager, "/events");
 
-        ProducerDefault producer = new ProducerDefault(kafkaProps);
-        producer.run();
+        JsonNode events = fetchService.fetchData();
+        System.out.println(events);
     }
 }

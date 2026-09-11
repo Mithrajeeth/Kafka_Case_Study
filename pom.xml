@@ -4,6 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- CUSTOMIZE PER PROJECT: rename artifactId when cloning this template -->
     <groupId>com.example</groupId>
     <artifactId>kafka-ops</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -14,10 +15,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <!-- Confluent Maven Repository -->
+    <!-- Confluent Maven Repository - required for Confluent's Avro/JSON Schema serializers -->
     <repositories>
         <repository>
-           <id>confluent</id>
+            <id>confluent</id>
             <url>https://packages.confluent.io/maven/</url>
         </repository>
     </repositories>
@@ -45,7 +46,7 @@
             <version>8.3.1</version>
         </dependency>
 
-        <!-- Confluent Avro Serializer (needed for KafkaAvroSerializer used in AvroProducer) -->
+        <!-- Confluent Avro Serializer -->
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-avro-serializer</artifactId>
@@ -67,6 +68,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- .env file support -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>dotenv-java</artifactId>
@@ -78,6 +80,16 @@
     <!-- Maven plugins -->
     <build>
         <plugins>
+
+            <!-- Runs `mvn exec:java` without needing -Dexec.mainClass every time -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <mainClass>com.example.Main</mainClass>
+                </configuration>
+            </plugin>
 
             <!-- Bundles all dependencies into one runnable jar for Docker -->
             <plugin>
@@ -101,22 +113,12 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
-                <configuration>
-                    <mainClass>com.example.Main</mainClass>
-                </configuration>
-            </plugin>
-            <!-- Avro code generation -->
-
-
+            <!-- Avro code generation from .avsc files (only needed for SpecificRecord;
+                 not required if using GenericRecord with runtime schema inference) -->
             <plugin>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro-maven-plugin</artifactId>
                 <version>1.12.1</version>
-
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -151,13 +153,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- Allows us to run Java classes using Maven -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
             </plugin>
 
         </plugins>
