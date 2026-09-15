@@ -3,7 +3,7 @@ package com.example.connections;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.Properties;
 
-public class RegistryConnection {
+public class KafkaRegistryConnection {
     public static Properties getProperties() {
 
         Dotenv dotenv = Dotenv.load();
@@ -11,7 +11,7 @@ public class RegistryConnection {
         String schemaRegistryApiKey = dotenv.get("SCHEMA_REGISTRY_API_KEY");
         String schemaRegistryApiSecret = dotenv.get("SCHEMA_REGISTRY_API_SECRET");
 
-        Properties props = new Properties();
+        Properties props = KafkaConnection.getProperties(); // reuse the Kafka connection properties
 
         props.put(
                 "schema.registry.url",
