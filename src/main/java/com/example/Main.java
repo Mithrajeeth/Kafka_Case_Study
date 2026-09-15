@@ -47,10 +47,10 @@ public class Main {
     private static void handleProduce(HttpExchange exchange, ProducerDefault producer, ApiFetchService apiFetchService) throws IOException {
         String responseText;
         int statusCode;
-        JsonNode data=null;
+        // JsonNode data=null;
 
         try {
-            data=apiFetchService.fetchData(); // Fetch data from the API before producing
+            producer.run();
             responseText = "Producer job completed successfully.";
             statusCode = 200;
 
@@ -60,13 +60,9 @@ public class Main {
             e.printStackTrace();
         }
 
-        // sendResponse(exchange, statusCode, responseText);
-        if (data != null) {
-            sendResponse(exchange, statusCode, data.toString()); // Send the fetched data as the response
-        } else {
-            sendResponse(exchange, statusCode, responseText); // Send the error message if data is null
-        }
-        // sendResponse(exchange, statusCode,data.toString()); // Send the fetched data as the response    
+       
+        
+        sendResponse(exchange, statusCode,responseText); 
     }
 
     private static void handleHealth(HttpExchange exchange) throws IOException {
@@ -75,7 +71,11 @@ public class Main {
 
     private static void sendResponse(HttpExchange exchange, int statusCode, String body) throws IOException {
         byte[] bytes = body.getBytes();
+        exchange.getResponseHeaders()
+            .set("Content-Type", "application/json; charset=UTF-8");
         exchange.sendResponseHeaders(statusCode, bytes.length);
+        
+
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(bytes);
         }
