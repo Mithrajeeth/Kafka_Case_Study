@@ -21,7 +21,7 @@ public class ApiFetchService {
 
         try {
             JsonNode root= http.get(dataPath, token);
-            return root.get("events");
+            return root;
 
         } catch (RuntimeException e) {
             // HttpRequests throws on 4xx/5xx - check if it was specifically a 401
