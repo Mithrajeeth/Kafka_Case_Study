@@ -16,11 +16,12 @@ public class ApiFetchService {
         this.dataPath = dataPath;
     }
 
-    public JsonNode fetchData() throws Exception {
+    public  JsonNode fetchData() throws Exception {
         String token = tokenManager.getValidToken();
 
         try {
-            return http.get(dataPath, token);
+            JsonNode root= http.get(dataPath, token);
+            return root.get("events");
 
         } catch (RuntimeException e) {
             // HttpRequests throws on 4xx/5xx - check if it was specifically a 401

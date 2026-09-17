@@ -6,8 +6,10 @@ import java.net.InetSocketAddress;
 
 import com.example.auth.TokenManager;
 import com.example.connections.KafkaConnection;
+import com.example.connections.KafkaRegistryConnection;
 import com.example.services.ApiFetchService;
 import com.example.http.HttpRequests;
+import com.example.producer.AvroProducer;
 import com.example.producer.ProducerDefault;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sun.net.httpserver.HttpExchange;
@@ -28,13 +30,17 @@ public class Main {
 
 
         var kafkaProps = KafkaConnection.getProperties();
-        ProducerDefault producer = new ProducerDefault(kafkaProps);
+        var kafkaRegistryProps=KafkaRegistryConnection.getProperties();
 
+
+        ProducerDefault producer = new ProducerDefault(kafkaProps);
+        AvroProducer avroProducer=new AvroProducer(kafkaRegistryProps,apiFetchService);
+        
         // ---- Start the HTTP server ----
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", PORT), 0);
 
 
-        server.createContext("/produce", exchange -> handleProduce(exchange, producer, apiFetchService));
+        server.createContext("/produce", exchange -> handleProduce(exchange, producer, apiFetchService,avroProducer));
         server.createContext("/health", Main::handleHealth);
 
         server.setExecutor(null); // default executor is fine for this scale
@@ -44,13 +50,15 @@ public class Main {
         System.out.println("Trigger the job:  GET http://localhost:" + PORT + "/produce");
     }
 
-    private static void handleProduce(HttpExchange exchange, ProducerDefault producer, ApiFetchService apiFetchService) throws IOException {
+    private static void handleProduce(HttpExchange exchange, ProducerDefault producer, ApiFetchService apiFetchService,AvroProducer avroProcuder) throws IOException {
         String responseText;
         int statusCode;
         // JsonNode data=null;
 
         try {
-            producer.run();
+            
+            avroProcuder.produce();
+           // producer.run();
             responseText = "Producer job completed successfully.";
             statusCode = 200;
 
