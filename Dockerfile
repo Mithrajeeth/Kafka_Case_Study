@@ -10,8 +10,12 @@ RUN mvn package -DskipTests
 
 
 # ---------- Stage 2: Runtime ----------
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-COPY --from=build /app/target/kafka-ops-1.0-SNAPSHOT.jar ./kafka-ops.jar
-ENTRYPOINT ["java", "-jar", "kafka-ops.jar"]
+# Wildcard - works regardless of artifactId, no manual renaming needed per project
+COPY --from=build /app/target/app.jar ./app.jar
+
+EXPOSE 8484
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

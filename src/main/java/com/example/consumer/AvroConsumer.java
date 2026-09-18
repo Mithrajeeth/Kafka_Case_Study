@@ -1,7 +1,7 @@
 package com.example.consumer;
 
 import java.time.Duration;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 
 import org.apache.avro.generic.GenericRecord;
@@ -43,7 +43,7 @@ public class AvroConsumer {
         this.consumer = new KafkaConsumer<>(kafkaRegistryProps);
 
         this.consumer.subscribe(
-                Collection.singletonList("Events")
+                Collections.singletonList("Events")
         );
     }
 

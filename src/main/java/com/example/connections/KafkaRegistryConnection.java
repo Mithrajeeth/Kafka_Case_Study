@@ -1,33 +1,29 @@
 package com.example.connections;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import java.util.Properties;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class KafkaRegistryConnection {
+
     public static Properties getProperties() {
 
-        Dotenv dotenv = Dotenv.load();
-        String schemaRegistryUrl = dotenv.get("SCHEMA_REGISTRY_URL");
-        String schemaRegistryApiKey = dotenv.get("SCHEMA_REGISTRY_API_KEY");
-        String schemaRegistryApiSecret = dotenv.get("SCHEMA_REGISTRY_API_SECRET");
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
-        Properties props = KafkaConnection.getProperties(); // reuse the Kafka connection properties
+        String registryUrl = getEnvOrDotenv("SCHEMA_REGISTRY_URL", dotenv);
+        String registryApiKey = getEnvOrDotenv("SCHEMA_REGISTRY_API_KEY", dotenv);
+        String registryApiSecret = getEnvOrDotenv("SCHEMA_REGISTRY_API_SECRET", dotenv);
 
-        props.put(
-                "schema.registry.url",
-                schemaRegistryUrl
-        );
+        Properties props = new Properties();
 
-        props.put(
-                "basic.auth.credentials.source",
-                "USER_INFO"
-        );
-
-        props.put(
-                "basic.auth.user.info",
-                schemaRegistryApiKey + ":" + schemaRegistryApiSecret
-        );
+        props.put("schema.registry.url", registryUrl);
+        props.put("basic.auth.credentials.source", "USER_INFO");
+        props.put("basic.auth.user.info", registryApiKey + ":" + registryApiSecret);
 
         return props;
+    }
+
+    private static String getEnvOrDotenv(String key, Dotenv dotenv) {
+        String value = System.getenv(key);
+        return (value != null) ? value : dotenv.get(key);
     }
 }
