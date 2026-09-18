@@ -68,7 +68,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        sendResponse(exchange, statusCode, responseText);
+         sendResponse(exchange, statusCode, responseText);
     }
 
     private static void handleConsume(HttpExchange a) throws IOException {
